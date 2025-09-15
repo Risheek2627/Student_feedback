@@ -71,15 +71,24 @@ const updateFeedBack = async (req, res) => {
 const myFeedbacks = async (req, res) => {
   try {
     const userId = req.user._id;
+
+    // pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+
     const feedbacks = await Feedback.find({ student: userId })
-      .select("-createdAt", "-updatedAt")
-      .populate("course", "title");
+      .select("-createdAt -updatedAt  -__v") // it excludes this properties from response
+      .populate("course", "title")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // newest first
 
     if (feedbacks.length === 0) {
       return res.status(404).json({ message: "No feedbacks found" });
     }
 
-    return res.status(201).json({ feedbacks });
+    return res.status(200).json({ feedbacks });
   } catch (error) {
     console.error(error);
     return res
@@ -88,12 +97,55 @@ const myFeedbacks = async (req, res) => {
   }
 };
 
-// const allFeedback = async (req, res) => {
-//   try {
-//     const user = await Feedback.findById({ _id: req.user._id });
+//  Only admin can view all the feedbacks
+const adminView = async (req, res) => {
+  try {
+    const userId = req.user._id;
 
-//     const feedback = await Feedback.find();
-//   } catch (error) {}
-// };
+    const user = await User.findById(userId);
 
-module.exports = { addFeedBack, updateFeedBack, deleteFeedback, myFeedbacks };
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role !== "admin") {
+      return res.json({ message: "You dont have access for this" });
+    }
+    // pagination
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 5;
+    const skip = (page - 1) * limit;
+    // feedback logic
+    const { course, rating, student } = req.body;
+
+    let filter = {};
+
+    if (course) filter.course = course;
+    if (rating) filter.rating = rating;
+    if (student) filter.student = student;
+
+    const feedbacks = await Feedback.find(filter)
+      .select("-createdAt -updatedAt -__v")
+      .populate("course", "title -_id")
+      .populate("student", "name")
+      .skip(skip)
+      .limit(limit);
+
+    if (feedbacks.length === 0) {
+      return res.status(404).json({ message: "No feedbacks found" });
+    }
+
+    return res.status(200).json({ feedbacks: feedbacks });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = {
+  addFeedBack,
+  updateFeedBack,
+  deleteFeedback,
+  myFeedbacks,
+  adminView,
+};
