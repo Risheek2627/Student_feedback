@@ -7,13 +7,13 @@ const feedbackSchema = new mongoose.Schema(
       ref: "Course",
       required: true,
     },
-    ratings: { type: Number, min: 1, max: 5 },
+    rating: { type: Number, min: 1, max: 5 },
     message: {
       type: String,
     },
     student: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: User,
+      ref: "User",
     },
   },
   { timestamps: true }
