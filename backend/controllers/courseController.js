@@ -76,3 +76,34 @@ const updateCourse = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+const deleteCourse = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.role !== "admin") {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const { courseId } = req.params;
+
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    await Course.findByIdAndDelete(courseId);
+
+    return res.status(200).json({ message: "Course deleted successfuly" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
