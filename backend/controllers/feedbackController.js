@@ -1,6 +1,7 @@
 const Course = require("../models/courseModel");
 const Feedback = require("../models/feedbackModel");
 const User = require("../models/userModel");
+const exportToCSV = require("../utils/csvExport");
 
 const addFeedBack = async (req, res) => {
   try {
@@ -142,10 +143,51 @@ const adminView = async (req, res) => {
   }
 };
 
+const exportFeedback = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role !== "admin") {
+      return res.status(403).json({ message: "You dont have access for this" });
+    }
+
+    const feedbacks = await Feedback.find()
+      .populate("student", "name email")
+      .populate("course", "title");
+
+    if (feedbacks.length === 0)
+      return res.status(404).json({ message: "No feddbacks found" });
+    const formatted = feedbacks.map((f) => ({
+      student: f.student?.name,
+      email: f.student?.email,
+      course: f.course?.title,
+      rating: f.rating,
+      message: f.message,
+      createdAt: f.createdAt.toISOString(),
+    }));
+
+    const csv = exportToCSV(formatted);
+
+    res.header("Content-Type", "text/csv");
+    res.attachment("feedbacks.csv");
+    res.send(csv);
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
+};
+
 module.exports = {
   addFeedBack,
   updateFeedBack,
   deleteFeedback,
   myFeedbacks,
   adminView,
+  exportFeedback,
 };
