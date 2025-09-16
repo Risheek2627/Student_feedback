@@ -8,6 +8,6 @@ const {
 } = require("../controllers/courseController");
 const router = express.Router();
 
-router.post("/add", addCourse);
-router.post("/update/courseId", updateCourse);
-router.post("/delete/courseId", deleteCourse);
+router.post("/add", auth, addCourse);
+router.post("/update/courseId", auth, updateCourse);
+router.post("/delete/courseId", auth, deleteCourse);
