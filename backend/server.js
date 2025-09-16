@@ -6,6 +6,7 @@ dotenv.config();
 
 const authRoutes = require("./routes/authRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
+const courseRoutes = require("./routes/courseRoutes");
 
 const PORT = process.env.PORT;
 
@@ -16,6 +17,7 @@ connectDB();
 
 app.use("/auth", authRoutes);
 app.use("/feedback", feedbackRoutes);
+app.use("/course", courseRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on port 3000");
