@@ -10,14 +10,15 @@ const transpoter = nodemailer.createTransport({
   },
 });
 
-const sendMail = async (to, subject) => {
+const sendMail = async (to, subject, html) => {
   try {
     const info = await transpoter.sendMail({
       from: `${process.env.EMAIL_USER}`,
       to,
       subject,
-      text,
+      html,
     });
+    console.log(`Email sent to ${to}`);
   } catch (error) {
     console.log(error);
   }
