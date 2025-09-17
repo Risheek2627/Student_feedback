@@ -24,6 +24,8 @@ const addCourse = async (req, res) => {
     });
 
     await course.save();
+
+    return res.status(201).json({ message: "Course added", Course: course });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message });
