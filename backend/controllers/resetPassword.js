@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const sendMail = require("../utils/email");
 const crypto = require("crypto");
+const bcrypt = require("bcryptjs");
 
 const requestPasswordReset = async (req, res) => {
   try {
@@ -67,8 +68,6 @@ const verifyOtp = async (req, res) => {
   }
 };
 
-const bcrypt = require("bcryptjs");
-
 const resetPassword = async (req, res) => {
   try {
     const { email, newPassword, renterPassword } = req.body;
@@ -96,4 +95,63 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { requestPasswordReset, verifyOtp, resetPassword };
+// change password after login
+
+const changePassword = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const email = user.email;
+    console.log("Authenticated User Email : ", email);
+
+    const { newPassword, renterPassword } = req.body;
+
+    if (newPassword !== renterPassword) {
+      return res.status(400).json({
+        message: "Password is mismatching",
+      });
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashPassword;
+
+    await user.save();
+
+    await sendMail(
+      email,
+      "Password has been updated",
+      `
+ <div style="font-family: Arial, sans-serif; padding:15px; background:#f9fafb; border:1px solid #e5e7eb; border-radius:8px; max-width:380px;">
+  <h2 style="margin:0 0 10px; color:#16a34a; text-align:center;">
+    ✅ Password Changed Successfully
+  </h2>
+  <p style="margin:0 0 12px; color:#374151; text-align:center;">
+    Your password has been updated successfully.
+  </p>
+  <div style="text-align:center; margin-top:15px;">
+    <span style="display:inline-block; background:#ecfdf5; color:#16a34a; font-size:14px; font-weight:bold; padding:6px 14px; border-radius:6px;">
+      If this wasnt you, please secure your account immediately.
+    </span>
+  </div>
+</div> `
+    );
+
+    return res.status(200).json({ message: "Password changed successfuly" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  requestPasswordReset,
+  verifyOtp,
+  resetPassword,
+  changePassword,
+};
