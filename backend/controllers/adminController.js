@@ -145,10 +145,36 @@ const unblockStudent = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+const deleteStudent = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
+
+    const { studentId } = req.params;
+
+    const student = await User.findByIdAndDelete(studentId);
+
+    if (!student) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({ message: "User deleted successfuly" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   totalFeedback,
   courseFeedback,
   registeredStudents,
   blockStudent,
   unblockStudent,
+  deleteStudent,
 };
