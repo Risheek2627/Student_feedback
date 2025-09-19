@@ -8,6 +8,7 @@ const {
   blockStudent,
   unblockStudent,
   deleteStudent,
+  averageRating,
 } = require("../controllers/adminController");
 
 const router = express.Router();
@@ -19,5 +20,6 @@ router.get("/registeredStudents", auth, registeredStudents);
 router.post("/block/:studentId", auth, blockStudent);
 router.post("/unblock/:studentId", auth, unblockStudent);
 router.post("/delete/:studentId", auth, deleteStudent);
+router.post("/average/:courseId", auth, averageRating);
 
 module.exports = router;

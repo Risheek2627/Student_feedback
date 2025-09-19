@@ -46,9 +46,9 @@ const courseFeedback = async (req, res) => {
       .select("-_id -createdAt -updatedAt -__v")
       .populate("course", "title")
       .select("-_id")
-      .populate("student", "name")
+      // .populate("student", "name")
       .select("-_id");
-
+    console.log("Courses", courseFeed);
     const feedmap = courseFeed.map((feed) => ({
       course: feed.course.title,
       student: feed.student.name,
@@ -59,7 +59,7 @@ const courseFeedback = async (req, res) => {
     if (!courseFeed)
       return res
         .status(404)
-        .json({ message: "No courses found on this course" });
+        .json({ message: "No feebacks found on this course" });
 
     return res.status(200).json({ feedbacks: feedmap });
   } catch (error) {
@@ -170,6 +170,48 @@ const deleteStudent = async (req, res) => {
   }
 };
 
+const averageRating = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role !== "admin")
+      return res.status(403).json({ message: "Access denied" });
+
+    const { courseId } = req.params;
+
+    const course = await Course.findById(courseId);
+
+    if (!course) return res.status(404).json({ message: "Course not found" });
+
+    const courseFeed = await Feedback.find({ course: courseId });
+
+    if (!courseFeed.length)
+      //if(!coursefeed) won’t work if courseFeed is an empty array (because [] is truthy). Use:
+      return res
+        .status(404)
+        .json({ message: "No feedbacks found for this course" });
+    const average =
+      courseFeed.reduce((acc, course) => {
+        return acc + course.rating;
+      }, 0) / courseFeed.length;
+
+    console.log("Average : ", average);
+
+    return res.status(200).json({
+      course: course.title,
+      avg: average,
+      total_feedbacks: courseFeed.length,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   totalFeedback,
   courseFeedback,
@@ -177,4 +219,5 @@ module.exports = {
   blockStudent,
   unblockStudent,
   deleteStudent,
+  averageRating,
 };
