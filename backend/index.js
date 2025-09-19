@@ -9,6 +9,8 @@ const feedbackRoutes = require("./routes/feedbackRoutes");
 const courseRoutes = require("./routes/courseRoutes.js");
 const resetPasswordRoutes = require("./routes/resetPasswordRoutes.js");
 const studentRoutes = require("./routes/studentRoutes.js");
+const adminRoutes = require("./routes/adminRoutes.js");
+
 const PORT = process.env.PORT;
 
 app.use(express.json());
@@ -21,6 +23,7 @@ app.use("/course", courseRoutes);
 app.use("/feedback", feedbackRoutes);
 app.use("/reset", resetPasswordRoutes);
 app.use("/profile", studentRoutes);
+app.use("/admin", adminRoutes);
 
 app.listen(PORT, () => {
   console.log("Server is running on port 3000");

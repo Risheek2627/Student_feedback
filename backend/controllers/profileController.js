@@ -1,4 +1,5 @@
 const User = require("../models/userModel");
+const Feedback = require("../models/feedbackModel");
 
 //  Name
 // ○ Email (read-only)
@@ -82,7 +83,8 @@ const viewProfile = async (req, res) => {
       "-_id -password -isBlocked -__v -createdAt -updatedAt"
     );
 
-    console.log(user);
+    console.log(feedbacks.length);
+    // console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
