@@ -25,7 +25,7 @@ const addProfile = async (req, res) => {
     user.phone = phone;
     user.address = address;
 
-    // ✅ Handle profile picture upload
+    //  Handle profile picture upload
     if (req.file) {
       user.profilePic = {
         url: req.file.path, // Cloudinary URL
@@ -37,12 +37,12 @@ const addProfile = async (req, res) => {
 
     return res.status(200).json({
       profile: {
-        name,
-        email,
-        phone,
-        address,
-        dob,
-        profilePic: user.profilePic,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        dob: user.dob,
+        Profile_Pic: user.profilePic,
       },
     });
   } catch (error) {
@@ -60,15 +60,15 @@ const editProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const email = user.email;
-    const { name, phone, dob, address } = req.body;
+    // const email = user.email;
+    const { name, phone, dob, address, removePic } = req.body;
 
     user.name = name || user.name;
     user.dob = dob || user.dob;
     user.phone = phone || user.phone;
     user.address = address || user.address;
 
-    // ✅ Delete picture if requested
+    //  Delete picture if requested
     if (removePic && user.profilePic?.public_id) {
       await cloudinary.uploader.destroy(user.profilePic.public_id);
       user.profilePic = null;
@@ -87,11 +87,12 @@ const editProfile = async (req, res) => {
 
     return res.status(200).json({
       profile: {
-        name,
-        email,
-        phone,
-        address,
-        dob,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        dob: user.dob,
+        Profile_Pic: user.profilePic,
       },
     });
   } catch (error) {
