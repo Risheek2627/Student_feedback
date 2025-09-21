@@ -31,11 +31,8 @@ A comprehensive backend system built with Node.js, Express, and MongoDB for mana
 | **File Handling** | Multer v2.0.2 + multer-storage-cloudinary v4.0.0 |
 | **Security** | bcryptjs v3.0.2 for password hashing |
 | **Email Service** | Nodemailer v7.0.6 |
-| **Validation** | express-validator v7.2.1 |
 | **CSV Export** | json2csv v6.0.0-alpha.2 |
 | **Environment** | dotenv v17.2.2 |
-| **Logging** | morgan v1.10.1 |
-| **Cookies** | cookie-parser v1.4.7 |
 | **CORS** | cors v2.8.5 |
 
 ## 📋 Prerequisites
