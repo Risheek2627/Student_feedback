@@ -427,12 +427,6 @@ Authorization: Bearer <admin_token>
 ```
 
 
-
-## 🧪 Testing
-
-### Using Postman
-Import the provided Postman collection file: `Student Feedback.postman_collection.json`
-
 ### Example Test Flow
 1. **Register** a new user
 2. **Login** to get JWT token
