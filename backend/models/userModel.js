@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema(
     },
     dob: { type: Date },
     address: { type: String },
+    profilePic: {
+      url: String,
+      public_id: String,
+    },
   },
   { timestamps: true }
 );

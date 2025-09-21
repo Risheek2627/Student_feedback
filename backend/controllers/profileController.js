@@ -1,6 +1,6 @@
 const User = require("../models/userModel");
 const Feedback = require("../models/feedbackModel");
-
+const cloudinary = require("../config/cloudinary");
 //  Name
 // ○ Email (read-only)
 // ○ Phone Number
@@ -25,6 +25,14 @@ const addProfile = async (req, res) => {
     user.phone = phone;
     user.address = address;
 
+    // ✅ Handle profile picture upload
+    if (req.file) {
+      user.profilePic = {
+        url: req.file.path, // Cloudinary URL
+        public_id: req.file.filename, // Cloudinary public_id
+      };
+    }
+
     await user.save();
 
     return res.status(200).json({
@@ -34,6 +42,7 @@ const addProfile = async (req, res) => {
         phone,
         address,
         dob,
+        profilePic: user.profilePic,
       },
     });
   } catch (error) {
@@ -59,6 +68,21 @@ const editProfile = async (req, res) => {
     user.phone = phone || user.phone;
     user.address = address || user.address;
 
+    // ✅ Delete picture if requested
+    if (removePic && user.profilePic?.public_id) {
+      await cloudinary.uploader.destroy(user.profilePic.public_id);
+      user.profilePic = null;
+    }
+
+    if (req.file) {
+      if (user.profilePic?.public_id) {
+        await cloudinary.uploader.destroy(user.profilePic.public_id);
+      }
+      user.profilePic = {
+        url: req.file.path,
+        public_id: req.file.filename,
+      };
+    }
     await user.save();
 
     return res.status(200).json({
